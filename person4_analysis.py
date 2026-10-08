@@ -24,7 +24,6 @@ print(np.round(M, 4))
 
 # ============================================================
 # 2. DIAGONALIZATION
-#    M = P D P^-1
 # ============================================================
 
 eigenvalues, eigenvectors = np.linalg.eig(M)
@@ -54,14 +53,15 @@ print(np.round(P_inv, 4))
 
 M_reconstructed = P @ D @ P_inv
 
-diagonalization_error = np.linalg.norm(M - M_reconstructed)
+diagonalization_error = np.linalg.norm(
+    M - M_reconstructed
+)
 
 print("\nReconstructed M = P D P^-1:")
 print(np.round(M_reconstructed, 4))
 
 print("\nDiagonalization error:")
 print(diagonalization_error)
-
 
 if diagonalization_error < 1e-10:
     print("Result: M is successfully diagonalized.")
@@ -123,9 +123,10 @@ print("\n------------------------------------------------------------")
 print("5. FUTURE FORECAST")
 print("------------------------------------------------------------")
 
-# The model uses:
-# Y = X M^T
-# Therefore for a row population vector:
+# The project uses:
+# Y = X @ M.T
+#
+# Therefore:
 # next_population = current_population @ M.T
 
 last_population = X[-1].copy()
@@ -140,7 +141,9 @@ for i in range(future_years_count):
 
     current_population = current_population @ M.T
 
-    future_predictions.append(current_population.copy())
+    future_predictions.append(
+        current_population.copy()
+    )
 
 future_predictions = np.array(future_predictions)
 
@@ -199,13 +202,16 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 
-plt.savefig("future_forecast.png", dpi=300)
+plt.savefig(
+    "future_forecast.png",
+    dpi=300
+)
 
 plt.show()
 
 
 # ============================================================
-# 7. CONVERGENCE FROM DIFFERENT INITIAL POPULATIONS
+# 7. CONVERGENCE ANALYSIS
 # ============================================================
 
 print("\n------------------------------------------------------------")
@@ -234,29 +240,38 @@ for initial in initial_vectors:
         total = np.sum(np.abs(current))
 
         if total != 0:
-            ratio = current / total
+
+            ratio = np.abs(current) / total
+
         else:
+
             ratio = np.zeros(3)
 
         ratios.append(ratio)
 
         current = current @ M.T
 
-    all_ratios.append(np.array(ratios))
+    all_ratios.append(
+        np.array(ratios)
+    )
 
 all_ratios = np.array(all_ratios)
 
-
-# Print final ratios
+print("\nNormalized absolute population components after 20 iterations:")
 
 for i in range(len(initial_vectors)):
 
     print("\nInitial population:")
     print(initial_vectors[i])
 
-    print("Final ratio after", iterations, "iterations:")
+    print("Final normalized components:")
 
-    print(np.round(all_ratios[i, -1], 4))
+    print(
+        np.round(
+            all_ratios[i, -1],
+            4
+        )
+    )
 
 
 # ============================================================
@@ -270,7 +285,6 @@ for i in range(len(initial_vectors)):
     plt.plot(
         range(iterations),
         all_ratios[i, :, 0],
-        linestyle="-",
         label=f"Initial {i + 1} - Herring"
     )
 
@@ -289,29 +303,41 @@ for i in range(len(initial_vectors)):
     )
 
 plt.xlabel("Iteration")
-plt.ylabel("Population Ratio")
-plt.title("Convergence of Species Ratios from Different Initial Populations")
+plt.ylabel("Normalized Absolute Component")
+
+plt.title(
+    "Convergence of Population-State Components"
+)
 
 plt.legend(fontsize=7)
+
 plt.grid(True)
+
 plt.tight_layout()
 
-plt.savefig("convergence_analysis.png", dpi=300)
+plt.savefig(
+    "convergence_analysis.png",
+    dpi=300
+)
 
 plt.show()
 
 
 # ============================================================
-# 9. DOMINANT EIGENVALUE INFORMATION
+# 9. DOMINANT EIGENVALUE
 # ============================================================
 
 print("\n------------------------------------------------------------")
 print("9. DOMINANT EIGENVALUE")
 print("------------------------------------------------------------")
 
-dominant_index = np.argmax(np.abs(eigenvalues))
+dominant_index = np.argmax(
+    np.abs(eigenvalues)
+)
 
-dominant_eigenvalue = eigenvalues[dominant_index]
+dominant_eigenvalue = eigenvalues[
+    dominant_index
+]
 
 print("Dominant eigenvalue:")
 print(dominant_eigenvalue)
@@ -320,11 +346,25 @@ print("\nMagnitude of dominant eigenvalue:")
 print(abs(dominant_eigenvalue))
 
 if abs(dominant_eigenvalue) < 1:
-    print("Long-term behavior: population magnitude tends to decline.")
+
+    print(
+        "Long-term behavior: "
+        "population magnitude tends to decline."
+    )
+
 elif abs(dominant_eigenvalue) > 1:
-    print("Long-term behavior: population magnitude tends to grow.")
+
+    print(
+        "Long-term behavior: "
+        "population magnitude tends to grow."
+    )
+
 else:
-    print("Long-term behavior: approximately persistent.")
+
+    print(
+        "Long-term behavior: "
+        "approximately persistent."
+    )
 
 
 # ============================================================
@@ -352,6 +392,11 @@ Real ecosystems are more complicated because they are affected by:
 8. Nonlinear predator-prey interactions
 9. Changes in environmental conditions
 
+The fitted transition matrix can also produce negative components
+when repeatedly applied. Negative populations are not physically
+meaningful, showing that the linear model has limitations for
+long-term forecasting.
+
 Therefore, the linear transition matrix provides a simplified
 mathematical model rather than an exact representation of the
 real ecosystem.
@@ -366,13 +411,33 @@ print("\n============================================================")
 print("PERSON 4 SUMMARY")
 print("============================================================")
 
-print("1. Diagonalization error:", diagonalization_error)
-print("2. M^n verification error:", power_error)
-print("3. Frobenius norm of M:", round(matrix_norm, 4))
-print("4. Dominant eigenvalue:", dominant_eigenvalue)
-print("5. Dominant eigenvalue magnitude:", abs(dominant_eigenvalue))
+print(
+    "1. Diagonalization error:",
+    diagonalization_error
+)
+
+print(
+    "2. M^n verification error:",
+    power_error
+)
+
+print(
+    "3. Frobenius norm of M:",
+    round(matrix_norm, 4)
+)
+
+print(
+    "4. Dominant eigenvalue:",
+    dominant_eigenvalue
+)
+
+print(
+    "5. Dominant eigenvalue magnitude:",
+    abs(dominant_eigenvalue)
+)
 
 print("\nFiles generated:")
+
 print("- future_forecast.png")
 print("- convergence_analysis.png")
 
